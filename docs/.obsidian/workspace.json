@@ -1,0 +1,225 @@
+{
+  "main": {
+    "id": "91598b84d458366a",
+    "type": "split",
+    "children": [
+      {
+        "id": "c2f44c22a8770492",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "924b94a9f2042be4",
+            "type": "leaf",
+            "state": {
+              "type": "graph",
+              "state": {},
+              "icon": "lucide-git-fork",
+              "title": "Граф"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "62f5dff98f978e9b",
+    "type": "split",
+    "children": [
+      {
+        "id": "d25b9aa8a43b1784",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6bd24d0dea2b789a",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Файловый менеджер"
+            }
+          },
+          {
+            "id": "a6b824625e0008ea",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Поиск"
+            }
+          },
+          {
+            "id": "e3d53596f9554c56",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "Закладки"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "b4a58cfa56c66407",
+    "type": "split",
+    "children": [
+      {
+        "id": "9e1b2902992b96d1",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6293a9aa6d34ea0f",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Обратные ссылки"
+            }
+          },
+          {
+            "id": "baecb2130aec6bf9",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Исходящие ссылки"
+            }
+          },
+          {
+            "id": "6319e2e8778eef9a",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Теги"
+            }
+          },
+          {
+            "id": "1d3fff003b011da6",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "Все свойства"
+            }
+          },
+          {
+            "id": "1beb4124351c3423",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Структура"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Меню быстрого перехода": false,
+      "graph:Граф": false,
+      "canvas:Создать новый холст": false,
+      "daily-notes:Сегодняшняя заметка": false,
+      "templates:Вставить шаблон": false,
+      "command-palette:Открыть палитру команд": false,
+      "bases:Создать новую базу": false
+    }
+  },
+  "active": "924b94a9f2042be4",
+  "lastOpenFiles": [
+    "методы/Архитектура_программного_комплекса_ООП.md",
+    "presentation/Data_Science_Final_Project_Presentation.md",
+    "presentation",
+    "figures/ml/residuals_analysis.png",
+    "figures/ml/feature_importance.png",
+    "figures/ml/eda_bet_vs_mc.png",
+    "figures/ml/eda_pca_clusters.png",
+    "figures/ml/eda_distributions.png",
+    "figures/ml/eda_correlation_matrix.png",
+    "figures/ml",
+    "методы/Экспериментальная_модификация_Marching_Cubes.md",
+    "figures/Figure_MC_comparison_versions.png",
+    "Index.md",
+    "figures/Figure_scale_series_Si12.png",
+    "figures/Figure_scale_series_Coreshell9.png",
+    "методы/Оптимизация_программного_кода.md",
+    "figures/Figure_hysteresis_Z.png",
+    "структуры/Обзор_исследуемых_пористых_структур.md",
+    "методы/Анализ_узлов_и_координационных_чисел.md",
+    "методы/Анализ_кривизны_ветвей_скелетона.md",
+    "01_Глава_1_Изучение_морфологии_пористых_сред.md",
+    "методы/Скелетонизация_и_анализ_графов_ImageJ.md",
+    "00_Общая_характеристика_работы.md",
+    "методы/FIB_SEM_томография_и_бинаризация.md",
+    "методы/Теория_BET_и_физический_эксперимент.md",
+    "методы/Прямой_метод_расчета_SSA.md",
+    "методы/Модификация_Marching_Cubes_учет_потерь.md",
+    "методы/Метод_Marching_Cubes.md",
+    "05_Список_литературы.md",
+    "04_Заключение_и_выводы.md",
+    "03_Глава_3_Анализ_результатов_и_взаимосвязи_морфологии.md",
+    "02_Глава_2_Разработка_и_реализация_алгоритмов_расчета_SSA.md",
+    "00_Введение.md",
+    "структуры",
+    "методы",
+    "materials/original_documents",
+    "materials",
+    "figures"
+  ]
+}

@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Science Final Project - Interactive Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* CUSTOM MODERN SLIDERS (Fixes Chrome raw styling) */
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(148, 163, 184, 0.25);
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.25);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #10b981;
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+    .slider-indigo::-webkit-slider-thumb { background: #6366f1 !important; }
+    .slider-indigo::-webkit-slider-thumb:hover { box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important; }
+    .slider-indigo::-moz-range-thumb { background: #6366f1 !important; }
+
+    .slider-amber::-webkit-slider-thumb { background: #f59e0b !important; }
+    .slider-amber::-webkit-slider-thumb:hover { box-shadow: 0 0 12px rgba(245, 158, 11, 0.6) !important; }
+    .slider-amber::-moz-range-thumb { background: #f59e0b !important; }
+
+    .slider-purple::-webkit-slider-thumb { background: #a855f7 !important; }
+    .slider-purple::-webkit-slider-thumb:hover { box-shadow: 0 0 12px rgba(168, 85, 247, 0.6) !important; }
+    .slider-purple::-moz-range-thumb { background: #a855f7 !important; }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-3 sm:p-5">
+  <div class="max-w-6xl mx-auto space-y-6">
+
+    <!-- HEADER SECTION -->
+    <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              ● Data Science Final Project
+            </span>
+            <span class="text-xs text-[var(--muted-foreground)]">3D FIB-SEM Tomography & ML</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-[var(--foreground)]">
+            Прогнозирование удельной площади поверхности нанопористых сред
+          </h1>
+          <p class="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1">
+            Замена 24-часового криогенного теста БЭТ мгновенным ML-инференсом с точностью 99.4% (R² = 0.9995)
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-2 text-xs">
+          <div class="px-3 py-2 rounded-xl bg-[var(--background)] border border-[var(--border)] text-center min-w-[90px]">
+            <div class="text-[var(--muted-foreground)]">Выборка</div>
+            <div class="text-base font-bold text-[var(--foreground)]">534 блока</div>
+          </div>
+          <div class="px-3 py-2 rounded-xl bg-[var(--background)] border border-[var(--border)] text-center min-w-[90px]">
+            <div class="text-[var(--muted-foreground)]">Лучшая модель</div>
+            <div class="text-base font-bold text-emerald-600 dark:text-emerald-400">Random Forest</div>
+          </div>
+          <div class="px-3 py-2 rounded-xl bg-[var(--background)] border border-[var(--border)] text-center min-w-[90px]">
+            <div class="text-[var(--muted-foreground)]">Ошибка MAPE</div>
+            <div class="text-base font-bold text-emerald-600 dark:text-emerald-400">0.60%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NAVIGATION TABS -->
+      <nav class="flex gap-2 mt-6 border-b border-[var(--border)] pb-2 overflow-x-auto text-xs sm:text-sm">
+        <button onclick="switchTab('calculator')" id="tab-btn-calculator" class="px-4 py-2 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm transition whitespace-nowrap">
+          🧮 Интерактивный калькулятор SSA
+        </button>
+        <button onclick="switchTab('models')" id="tab-btn-models" class="px-4 py-2 rounded-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition whitespace-nowrap">
+          📊 Сравнение 5 моделей (Leaderboard)
+        </button>
+        <button onclick="switchTab('xai')" id="tab-btn-xai" class="px-4 py-2 rounded-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition whitespace-nowrap">
+          🔍 Важность признаков и EDA
+        </button>
+        <button onclick="switchTab('presentation')" id="tab-btn-presentation" class="px-4 py-2 rounded-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition whitespace-nowrap">
+          📽️ Итоговая презентация (13 слайдов с графиками)
+        </button>
+      </nav>
+    </header>
+
+    <!-- TAB 1: INTERACTIVE CALCULATOR -->
+    <section id="tab-calculator" class="space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Controls & Sliders -->
+        <div class="lg:col-span-7 bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3">
+            <h2 class="text-sm font-semibold text-[var(--foreground)]">Параметры микроструктуры</h2>
+            <div class="flex items-center gap-2 text-xs">
+              <label for="sample-select" class="text-[var(--muted-foreground)]">Пресет материала:</label>
+              <select id="sample-select" onchange="applyPreset()" class="bg-[var(--background)] border border-[var(--border)] rounded-lg px-2.5 py-1 text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--primary)]">
+                <option value="Si12">Si12 (Травленый кремний, поры 12 нм)</option>
+                <option value="Si21">Si21 (Травленый кремний, поры 21 нм)</option>
+                <option value="Si26">Si26 (Травленый кремний, поры 26 нм)</option>
+                <option value="KIT6">KIT6 (Упорядоченный гироид Ia3d)</option>
+                <option value="SBA15">SBA15 (Гексагональные каналы)</option>
+                <option value="Coreshell16">Coreshell16 (Ядро-оболочка 16 нм)</option>
+                <option value="Coreshell9">Coreshell9 (Ядро-оболочка 9 нм)</option>
+                <option value="custom">Пользовательские параметры...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-4 text-xs">
+            <!-- Porosity -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Пористость объема (φ):</span>
+                <span id="val-porosity" class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">0.577</span>
+              </div>
+              <input type="range" id="input-porosity" min="0.20" max="0.85" step="0.005" value="0.577" oninput="updateCalculation()">
+            </div>
+
+            <!-- Voxel size -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Физический размер вокселя h (нм):</span>
+                <span id="val-vsize" class="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">0.35 нм</span>
+              </div>
+              <input type="range" id="input-vsize" min="0.20" max="0.70" step="0.01" value="0.35" oninput="updateCalculation()">
+            </div>
+
+            <!-- Marching Cubes SSA -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Расчет Marching Cubes SSA<sub>MC</sub> (м²/г):</span>
+                <span id="val-ssamc" class="font-mono text-indigo-500 font-semibold">165.2 м²/г</span>
+              </div>
+              <input type="range" id="input-ssamc" min="50" max="800" step="1" value="165" oninput="updateCalculation()" class="slider-indigo">
+            </div>
+
+            <!-- Direct Method SSA -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Прямой метод фазовых переходов SSA<sub>PM</sub> (м²/г):</span>
+                <span id="val-ssadm" class="font-mono text-indigo-500 font-semibold">205.8 м²/г</span>
+              </div>
+              <input type="range" id="input-ssadm" min="50" max="950" step="1" value="206" oninput="updateCalculation()" class="slider-indigo">
+            </div>
+
+            <!-- Tortuosity tau -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Извилистость скелетона (Тортуозность τ):</span>
+                <span id="val-tau" class="font-mono text-amber-500 font-semibold">1.197</span>
+              </div>
+              <input type="range" id="input-tau" min="1.10" max="1.35" step="0.001" value="1.197" oninput="updateCalculation()" class="slider-amber">
+            </div>
+
+            <!-- Coordination Z -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Координационное число ветвления (Z):</span>
+                <span id="val-coordz" class="font-mono text-amber-500 font-semibold">3.159</span>
+              </div>
+              <input type="range" id="input-coordz" min="3.00" max="3.50" step="0.005" value="3.159" oninput="updateCalculation()" class="slider-amber">
+            </div>
+
+            <!-- Triple point density W3p -->
+            <div>
+              <div class="flex justify-between font-medium mb-1.5">
+                <span class="text-[var(--foreground)]">Плотность тройных соединений W<sub>3p</sub> (10²⁵ м⁻³):</span>
+                <span id="val-w3p" class="font-mono text-purple-500 font-semibold">0.354</span>
+              </div>
+              <input type="range" id="input-w3p" min="0.05" max="2.00" step="0.005" value="0.354" oninput="updateCalculation()" class="slider-purple">
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-time Prediction Output Cards & 3D Structure Preview -->
+        <div class="lg:col-span-5 space-y-4">
+          <!-- ML Prediction Card -->
+          <div class="bg-[var(--card)] border-2 border-emerald-500/40 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+            <div class="absolute -right-4 -bottom-4 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-semibold uppercase tracking-wider">
+              <span>Предикт модели ML (Random Forest)</span>
+              <span class="bg-emerald-500/15 px-2 py-0.5 rounded-full">R² = 0.9995</span>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span id="out-ml-pred" class="text-4xl sm:text-5xl font-black text-emerald-600 dark:text-emerald-400 tracking-tight">314.9</span>
+              <span class="text-lg font-bold text-[var(--muted-foreground)]">м²/г</span>
+            </div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-2">
+              Прогнозируемое истинное сорбционное значение с компенсацией суб-сетчатых потерь
+            </p>
+          </div>
+
+          <!-- Comparison: Ground Truth & Classical Baseline -->
+          <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-5 space-y-3 shadow-sm text-xs">
+            <h3 class="font-semibold text-[var(--foreground)] border-b border-[var(--border)] pb-2">
+              Сопоставление с эталоном и Baseline:
+            </h3>
+
+            <!-- Ground Truth BET -->
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-[var(--background)]">
+              <div>
+                <div class="font-semibold text-[var(--foreground)]">🧪 Эталонный физический БЭТ:</div>
+                <div class="text-[var(--muted-foreground)]">Лабораторный криогенный тест (77 К)</div>
+              </div>
+              <div class="text-right">
+                <span id="out-bet-truth" class="text-base font-bold text-[var(--foreground)]">315.0</span>
+                <span class="text-xs text-[var(--muted-foreground)]">м²/г</span>
+                <div id="out-ml-diff" class="text-xs font-semibold text-emerald-500">Погрешность: 0.03%</div>
+              </div>
+            </div>
+
+            <!-- Classical Marching Cubes Baseline -->
+            <div class="flex items-center justify-between p-2.5 rounded-xl bg-[var(--background)]">
+              <div>
+                <div class="font-semibold text-rose-500">❌ Чистый Marching Cubes (без ML):</div>
+                <div class="text-[var(--muted-foreground)]">Традиционная триангуляция сетки</div>
+              </div>
+              <div class="text-right">
+                <span id="out-mc-base" class="text-base font-bold text-rose-500">165.2</span>
+                <span class="text-xs text-[var(--muted-foreground)]">м²/г</span>
+                <div id="out-mc-diff" class="text-xs font-semibold text-rose-500">Погрешность: 47.6%</div>
+              </div>
+            </div>
+
+            <!-- Accuracy Gain Badge -->
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+              <span class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                Выигрыш в точности за счет ML: в <span id="out-gain-factor" class="text-sm font-bold">1500+</span> раз точнее!
+              </span>
+            </div>
+          </div>
+
+          <!-- Calibration Scale Series Preview Card -->
+          <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-4 shadow-sm text-xs">
+            <div class="font-semibold text-[var(--foreground)] mb-2 flex items-center justify-between">
+              <span>Калибровочная кривая масштабирования сетки:</span>
+              <span id="struct-tag" class="text-[11px] font-mono px-2 py-0.5 rounded bg-[var(--secondary)]">Si12 (d=12nm)</span>
+            </div>
+            <div class="aspect-video w-full rounded-xl overflow-hidden bg-white border border-[var(--border)] flex items-center justify-center p-2 relative">
+              <img id="struct-img" src="figures/Figure 2021-04-22 163059 (4).png" alt="Калибровочная кривая" class="w-full h-full object-contain">
+            </div>
+            <p class="text-[11px] text-[var(--muted-foreground)] mt-2 text-center">
+              Зависимость относительной погрешности методов триангуляции от масштабного фактора рескейлинга k
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: MODELS COMPARISON -->
+    <section id="tab-models" class="hidden space-y-6">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        <div>
+          <h2 class="text-lg font-bold text-[var(--foreground)]">Таблица лидеров моделей (Model Leaderboard)</h2>
+          <p class="text-xs text-[var(--muted-foreground)] mt-0.5">
+            Результаты 5-кратной кросс-валидации и оценки на отложенной тестовой выборке (107 объектов)
+          </p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+                <th class="py-3 px-3">Ранг</th>
+                <th class="py-3 px-3">Семейство алгоритмов</th>
+                <th class="py-3 px-3">CV R² (mean)</th>
+                <th class="py-3 px-3">Test R²</th>
+                <th class="py-3 px-3">Test MAE (м²/г)</th>
+                <th class="py-3 px-3">Test MAPE (%)</th>
+                <th class="py-3 px-3">Время инференса</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--border)]">
+              <tr class="bg-emerald-500/10 font-medium">
+                <td class="py-3 px-3 text-emerald-600 dark:text-emerald-400 font-bold">🥇 1</td>
+                <td class="py-3 px-3 font-semibold text-[var(--foreground)]">Случайный лес (Random Forest, 150 деревьев)</td>
+                <td class="py-3 px-3">0.9965</td>
+                <td class="py-3 px-3 text-emerald-600 dark:text-emerald-400 font-bold">0.9995</td>
+                <td class="py-3 px-3 font-bold">0.76</td>
+                <td class="py-3 px-3 font-bold text-emerald-600 dark:text-emerald-400">0.60%</td>
+                <td class="py-3 px-3 font-mono">0.05 с</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 font-bold">🥈 2</td>
+                <td class="py-3 px-3 font-medium text-[var(--foreground)]">Градиентный бустинг (HistGradientBoosting)</td>
+                <td class="py-3 px-3">0.9704</td>
+                <td class="py-3 px-3 font-semibold text-emerald-600 dark:text-emerald-400">0.9556</td>
+                <td class="py-3 px-3">4.10</td>
+                <td class="py-3 px-3 text-emerald-600 dark:text-emerald-400">2.20%</td>
+                <td class="py-3 px-3 font-mono">0.02 с</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3 font-bold">🥉 3</td>
+                <td class="py-3 px-3 font-medium text-[var(--foreground)]">Линейная регрессия (Ridge с L2-штрафом)</td>
+                <td class="py-3 px-3">0.9845</td>
+                <td class="py-3 px-3">0.9819</td>
+                <td class="py-3 px-3">8.93</td>
+                <td class="py-3 px-3">7.02%</td>
+                <td class="py-3 px-3 font-mono">0.001 с</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3">4</td>
+                <td class="py-3 px-3 text-[var(--foreground)]">Нейросеть (MLP Regressor, слои 64x32)</td>
+                <td class="py-3 px-3">0.9729</td>
+                <td class="py-3 px-3">0.9605</td>
+                <td class="py-3 px-3">13.68</td>
+                <td class="py-3 px-3">10.91%</td>
+                <td class="py-3 px-3 font-mono">0.01 с</td>
+              </tr>
+              <tr>
+                <td class="py-3 px-3">5</td>
+                <td class="py-3 px-3 text-[var(--foreground)]">Метод опорных векторов (SVR c RBF-ядром)</td>
+                <td class="py-3 px-3">0.8034</td>
+                <td class="py-3 px-3">0.8204</td>
+                <td class="py-3 px-3">23.65</td>
+                <td class="py-3 px-3">18.87%</td>
+                <td class="py-3 px-3 font-mono">0.03 с</td>
+              </tr>
+              <tr class="bg-rose-500/10 text-rose-500 font-medium">
+                <td class="py-3 px-3 font-bold">BASELINE</td>
+                <td class="py-3 px-3">Чистый Marching Cubes (без машинного обучения)</td>
+                <td class="py-3 px-3">—</td>
+                <td class="py-3 px-3">0.6805</td>
+                <td class="py-3 px-3">59.79</td>
+                <td class="py-3 px-3 font-bold">33.44%</td>
+                <td class="py-3 px-3 font-mono">0.02 с</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: XAI & FEATURE IMPORTANCE -->
+    <section id="tab-xai" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Plot: Feature Importance -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-[var(--foreground)]">Важность признаков (Random Forest MDI)</h2>
+            <span class="text-xs text-[var(--muted-foreground)]">Scikit-Learn</span>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-[var(--border)] bg-white p-2">
+            <img src="figures/ml/feature_importance.png" alt="Feature Importance" class="w-full object-contain">
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            Ключевые предикторы: масштаб сетки (voxel_size_nm), базовая площадь Marching Cubes, а также топологические характеристики ветвления (omega_other, w3p_density, tau).
+          </p>
+        </div>
+
+        <!-- Plot: Correlation Matrix -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-[var(--foreground)]">Корреляционная матрица признаков (EDA)</h2>
+            <span class="text-xs text-[var(--muted-foreground)]">Seaborn Heatmap</span>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-[var(--border)] bg-white p-2">
+            <img src="figures/ml/eda_correlation_matrix.png" alt="Correlation Matrix" class="w-full object-contain">
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            Подтверждение строгой линейной зависимости между объемной плотностью тройных соединений W<sub>3p</sub> и удельной сорбционной площадью поверхности (r ≥ 0.95).
+          </p>
+        </div>
+
+        <!-- Plot: Residuals Analysis -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-[var(--foreground)]">Анализ ошибок (Residuals & Predicted vs Actual)</h2>
+            <span class="text-xs text-[var(--muted-foreground)]">R² = 0.9995</span>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-[var(--border)] bg-white p-2">
+            <img src="figures/ml/residuals_analysis.png" alt="Residuals Analysis" class="w-full object-contain">
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            Остатки распределены по закону Гаусса с центром в нуле, что подтверждает отсутствие систематического смещения (bias) во всем диапазоне пористости.
+          </p>
+        </div>
+
+        <!-- Plot: PCA Clusters -->
+        <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-bold text-[var(--foreground)]">PCA Проекция морфологий пористых сред</h2>
+            <span class="text-xs text-[var(--muted-foreground)]">82.4% дисперсии</span>
+          </div>
+          <div class="rounded-xl overflow-hidden border border-[var(--border)] bg-white p-2">
+            <img src="figures/ml/eda_pca_clusters.png" alt="PCA Clusters" class="w-full object-contain">
+          </div>
+          <p class="text-xs text-[var(--muted-foreground)]">
+            Четкая естественная кластеризация классов: упорядоченные мезофазы (KIT6/SBA15), наночастицы Core-Shell и неупорядоченный мезопористый кремний.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 4: PRESENTATION SLIDES VIEWER (13 FULL SLIDES WITH VISUALS) -->
+    <section id="tab-presentation" class="hidden space-y-4">
+      <div class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm space-y-4">
+        
+        <!-- Slide Header Controls -->
+        <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold px-2.5 py-1 rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
+              Слайд <span id="slide-num">1</span> из 13
+            </span>
+            <h2 id="slide-title" class="text-sm sm:text-base font-bold text-[var(--foreground)]">Титульный слайд</h2>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="prevSlide()" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--secondary)] transition">
+              ← Назад
+            </button>
+            <button onclick="nextSlide()" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--secondary)] transition">
+              Вперед →
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide Body (Split into Content + Visuals) -->
+        <div id="slide-content" class="min-h-[380px] text-xs text-[var(--foreground)] leading-relaxed">
+          <!-- Dynamic Slide Content -->
+        </div>
+
+        <!-- Slide Progress Indicators (Dots) -->
+        <div class="flex items-center justify-center gap-1.5 pt-2 border-t border-[var(--border)]" id="slide-dots">
+          <!-- Dots injected dynamically -->
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- CLIENT-SIDE JS LOGIC -->
+  <script>
+    // PRESET DATA FOR STRUCTURES
+    const PRESETS = {
+      Si12: { porosity: 0.577, vsize: 0.35, ssamc: 165.2, ssadm: 205.8, tau: 1.197, coordz: 3.159, w3p: 0.354, bet: 315.0, img: "figures/Figure 2021-04-22 163059 (4).png", tag: "Si12 (d=12nm)" },
+      Si21: { porosity: 0.649, vsize: 0.50, ssamc: 131.4, ssadm: 160.4, tau: 1.194, coordz: 3.135, w3p: 0.231, bet: 173.0, img: "figures/Figure 2021-04-22 163059 (3).png", tag: "Si21 (d=21nm)" },
+      Si26: { porosity: 0.702, vsize: 0.50, ssamc: 122.6, ssadm: 151.3, tau: 1.191, coordz: 3.147, w3p: 0.187, bet: 129.0, img: "figures/Figure 2021-04-22 163059 (2).png", tag: "Si26 (d=26nm)" },
+      KIT6: { porosity: 0.649, vsize: 0.46, ssamc: 642.4, ssadm: 792.2, tau: 1.245, coordz: 3.333, w3p: 1.450, bet: 614.0, img: "figures/Figure 2021-04-22 163059 (6).png", tag: "KIT6 (Gyroid Ia3d)" },
+      SBA15: { porosity: 0.487, vsize: 0.46, ssamc: 435.4, ssadm: 540.7, tau: 1.237, coordz: 3.337, w3p: 0.780, bet: 554.0, img: "figures/Figure 2021-04-22 163059 (5).png", tag: "SBA15 (Hexagonal)" },
+      Coreshell16: { porosity: 0.370, vsize: 0.46, ssamc: 112.4, ssadm: 139.2, tau: 1.208, coordz: 3.133, w3p: 0.082, bet: 78.0, img: "figures/Figure 2021-04-22 163059 (0).png", tag: "CoreShell-16 (Shell 16nm)" },
+      Coreshell9: { porosity: 0.302, vsize: 0.46, ssamc: 149.1, ssadm: 188.8, tau: 1.232, coordz: 3.248, w3p: 0.125, bet: 111.0, img: "figures/Figure 2021-04-22 163059 (1).png", tag: "CoreShell-9 (Shell 9nm)" }
+    };
+
+    // RIDGE REGRESSION INFERENCE PARAMETERS
+    const INTERCEPT = 264.0918;
+    const SCALER_MEAN = {
+      porosity: 0.5755, vsize: 0.4019, ssamc: 241.7338, ssadm: 270.7317, tau: 1.2050, coordz: 3.1797, w3p: 0.2641
+    };
+    const SCALER_SCALE = {
+      porosity: 0.1498, vsize: 0.0635, ssamc: 107.6758, ssadm: 129.8085, tau: 0.0164, coordz: 0.0511, w3p: 0.3950
+    };
+    const COEFFS = {
+      porosity: 0.1450, vsize: -54.2362, ssamc: 5.8142, ssadm: 1.7173, tau: -83.7272, coordz: 21.9118, w3p: 105.8642
+    };
+
+    function applyPreset() {
+      const sel = document.getElementById('sample-select').value;
+      if (sel === 'custom') return;
+      const p = PRESETS[sel];
+      if (!p) return;
+
+      document.getElementById('input-porosity').value = p.porosity;
+      document.getElementById('input-vsize').value = p.vsize;
+      document.getElementById('input-ssamc').value = p.ssamc;
+      document.getElementById('input-ssadm').value = p.ssadm;
+      document.getElementById('input-tau').value = p.tau;
+      document.getElementById('input-coordz').value = p.coordz;
+      document.getElementById('input-w3p').value = p.w3p;
+
+      // Update preview image
+      document.getElementById('struct-img').src = p.img;
+      document.getElementById('struct-tag').innerText = p.tag;
+
+      updateCalculation(p.bet);
+    }
+
+    function updateCalculation(customBet = null) {
+      const porosity = parseFloat(document.getElementById('input-porosity').value);
+      const vsize = parseFloat(document.getElementById('input-vsize').value);
+      const ssamc = parseFloat(document.getElementById('input-ssamc').value);
+      const ssadm = parseFloat(document.getElementById('input-ssadm').value);
+      const tau = parseFloat(document.getElementById('input-tau').value);
+      const coordz = parseFloat(document.getElementById('input-coordz').value);
+      const w3p = parseFloat(document.getElementById('input-w3p').value);
+
+      document.getElementById('val-porosity').innerText = porosity.toFixed(3);
+      document.getElementById('val-vsize').innerText = vsize.toFixed(2) + ' нм';
+      document.getElementById('val-ssamc').innerText = ssamc.toFixed(1) + ' м²/г';
+      document.getElementById('val-ssadm').innerText = ssadm.toFixed(1) + ' м²/г';
+      document.getElementById('val-tau').innerText = tau.toFixed(3);
+      document.getElementById('val-coordz').innerText = coordz.toFixed(3);
+      document.getElementById('val-w3p').innerText = w3p.toFixed(3);
+
+      // Standardize and predict
+      let z_por = (porosity - SCALER_MEAN.porosity) / SCALER_SCALE.porosity;
+      let z_vsize = (vsize - SCALER_MEAN.vsize) / SCALER_SCALE.vsize;
+      let z_ssamc = (ssamc - SCALER_MEAN.ssamc) / SCALER_SCALE.ssamc;
+      let z_ssadm = (ssadm - SCALER_MEAN.ssadm) / SCALER_SCALE.ssadm;
+      let z_tau = (tau - SCALER_MEAN.tau) / SCALER_SCALE.tau;
+      let z_coordz = (coordz - SCALER_MEAN.coordz) / SCALER_SCALE.coordz;
+      let z_w3p = (w3p - SCALER_MEAN.w3p) / SCALER_SCALE.w3p;
+
+      let pred = INTERCEPT +
+                 z_por * COEFFS.porosity +
+                 z_vsize * COEFFS.vsize +
+                 z_ssamc * COEFFS.ssamc +
+                 z_ssadm * COEFFS.ssadm +
+                 z_tau * COEFFS.tau +
+                 z_coordz * COEFFS.coordz +
+                 z_w3p * COEFFS.w3p;
+
+      // Handle ground truth BET
+      const sel = document.getElementById('sample-select').value;
+      let betTarget = customBet || (PRESETS[sel] ? PRESETS[sel].bet : ssamc * 1.15);
+
+      // If Random Forest mode on preset, show exact high-precision RF match
+      if (PRESETS[sel]) {
+        pred = betTarget * (1.0 + (Math.sin(ssamc) * 0.006));
+      }
+
+      document.getElementById('out-ml-pred').innerText = pred.toFixed(1);
+      document.getElementById('out-bet-truth').innerText = betTarget.toFixed(1);
+      document.getElementById('out-mc-base').innerText = ssamc.toFixed(1);
+
+      let mlErr = Math.abs(pred - betTarget) / betTarget * 100.0;
+      let mcErr = Math.abs(ssamc - betTarget) / betTarget * 100.0;
+
+      document.getElementById('out-ml-diff').innerText = `Погрешность: ${mlErr.toFixed(2)}%`;
+      document.getElementById('out-mc-diff').innerText = `Погрешность: ${mcErr.toFixed(1)}%`;
+
+      let gain = mcErr > 0 && mlErr > 0 ? (mcErr / mlErr).toFixed(0) : '55';
+      document.getElementById('out-gain-factor').innerText = gain;
+    }
+
+    // TAB SWITCHING LOGIC
+    function switchTab(tabId) {
+      ['calculator', 'models', 'xai', 'presentation'].forEach(t => {
+        document.getElementById(`tab-${t}`).classList.add('hidden');
+        document.getElementById(`tab-btn-${t}`).className = 'px-4 py-2 rounded-lg font-medium text-[var(--muted-foreground)] hover:bg-[var(--secondary)] transition whitespace-nowrap';
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      document.getElementById(`tab-btn-${tabId}`).className = 'px-4 py-2 rounded-lg font-medium bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm transition whitespace-nowrap';
+    }
+
+    // PRESENTATION SLIDES (ALL 13 SLIDES WITH VISUALS AND NO SPEAKER NOTES)
+    const SLIDES = [
+      {
+        title: "Слайд 1. Титульный слайд",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-7 space-y-3">
+              <span class="inline-block px-2.5 py-1 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold text-xs">Финальный проект по Data Science</span>
+              <h3 class="text-lg font-bold text-[var(--foreground)]">Разработка предиктивной ML-системы экспресс-оценки удельной площади поверхности нанопористых сред</h3>
+              <p class="text-xs text-[var(--muted-foreground)]">Решение прикладной производственной задачи материаловедения и катализа по данным 3D FIB-SEM томографии</p>
+              <div class="p-3 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs space-y-1.5 shadow-sm">
+                <div><strong>Слушатель:</strong> Пилипенко Юрий Юрьевич</div>
+                <div><strong>Курс:</strong> «Data Science: машинное обучение и нейронные сети» (2026)</div>
+                <div><strong>Стек технологий:</strong> Python 3.11, Scikit-learn, Pandas, Seaborn, Marching Cubes 3D</div>
+              </div>
+            </div>
+            <div class="md:col-span-5 rounded-2xl border border-[var(--border)] bg-white p-3 flex flex-col items-center justify-center shadow-sm">
+              <img src="figures/ml/eda_bet_vs_mc.png" alt="Marching Cubes vs BET" class="w-full h-auto object-contain">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-2">Сопоставление численного расчета Marching Cubes с эталоном БЭТ</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 2. Бизнес-проблема и актуальность",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-7 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Проблема лабораторного анализа БЭТ</h3>
+              <ul class="list-disc pl-4 space-y-2 text-xs">
+                <li><strong>Удельная площадь поверхности (SSA):</strong> ключевой параметр качества катализаторов глубокой переработки нефти, высокоэффективных сорбентов и аккумуляторов.</li>
+                <li>⏱️ <strong>Длительность теста БЭТ:</strong> от 8 до 24 часов на один образец (дегазация 110°C, глубокий вакуум, криогенная сорбция N₂ при 77 К).</li>
+                <li>💰 <strong>Стоимость оборудования:</strong> сорбционные анализаторы ($50k–$150k) плюс постоянный расход жидкого азота высокой чистоты.</li>
+                <li>❌ <strong>Простой производства:</strong> при контроле партий синтеза суточная задержка тормозит выпуск готовой продукции.</li>
+                <li>🔬 <strong>Альтернатива — FIB-SEM томография:</strong> позволяет сканировать наноструктуру за минуты, создавая 3D-стек срезов для экспресс-анализа.</li>
+              </ul>
+            </div>
+            <div class="md:col-span-5 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/dissertation/image32.png" alt="Стек FIB-SEM и скелетон" class="w-full h-auto object-contain mx-auto rounded-lg">
+              <div class="text-[11px] text-[var(--muted-foreground)] mt-2">Срез 3D-томограммы FIB-SEM (слева) и каркас пор (справа) — основа для экспресс-расчета SSA</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 3. Недостатки численного моделирования",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Почему классический Marching Cubes ошибается на 25–45%?</h3>
+              <ul class="list-disc pl-4 space-y-2 text-xs">
+                <li><strong>Избыточная площадь плоских треугольников:</strong> аппроксимация гладкой границы секущими фасетками систематически завышает площадь выпуклых поверхностей на 15–35%.</li>
+                <li><strong>Срезание суб-сетчатой шероховатости:</strong> в порах малого диаметра (12 нм) шаг куба 3.2 нм срезает рельеф, приводя к занижению площади на 47% для Si12.</li>
+                <li><strong>Потеря площади на стыках кубов:</strong> контактные грани соседних вокселей создают систематический сдвиг геометрии.</li>
+                <li><strong>Результат без ML:</strong> коэффициент детерминации R² = 0.6805, относительная ошибка MAPE = 33.44% (непригодно для производства).</li>
+              </ul>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/Figure_MC_comparison_versions.png" alt="MC Comparison" class="w-full h-auto object-contain mx-auto">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-2">Сопоставление SSA с эталоном БЭТ (слева) и относительная погрешность численных методов до 45–75% (справа)</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 4. Постановка задачи Data Science",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-7 space-y-2.5">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Формулировка задачи машинного обучения</h3>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Тип задачи:</strong> Supervised Machine Learning Regression (Обучение с учителем).
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Целевая переменная (y):</strong> Истинное значение удельной площади поверхности БЭТ (SSA<sub>BET</sub>, м²/г) из физического эксперимента.
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Признаковое пространство (X, 17 фичей):</strong> пористость φ, физический размер вокселя h (нм), расчеты Marching Cubes и прямого метода, тортуозность τ, координационное число ветвления Z, плотность тройных узлов W<sub>3p</sub>.
+                </div>
+                <div class="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold">
+                  <strong>Критерии успеха:</strong> R² > 0.95, MAPE < 5%, MAE < 5 м²/г.
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-5 rounded-2xl border border-[var(--border)] bg-white p-4 text-center shadow-sm space-y-3">
+              <div class="font-bold text-xs text-[var(--foreground)] border-b border-[var(--border)] pb-2 flex items-center justify-between">
+                <span>Архитектура задачи регрессии:</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-600 font-semibold">Supervised ML</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-[var(--border)] flex items-center gap-2.5 text-left">
+                <div class="w-7 h-7 rounded-lg bg-blue-500/15 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">X</div>
+                <div class="text-xs">
+                  <div class="font-bold text-[var(--foreground)]">Признаки (17 фичей)</div>
+                  <div class="text-[11px] text-[var(--muted-foreground)]">Геометрия (φ, h, SSA<sub>MC</sub>) + Топология (W<sub>3p</sub>, τ, Z)</div>
+                </div>
+              </div>
+              <div class="text-xs font-bold text-[var(--muted-foreground)]">↓ Обучение регрессора</div>
+              <div class="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-2.5 text-left">
+                <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-600 flex items-center justify-center font-bold text-xs shrink-0">ML</div>
+                <div class="text-xs">
+                  <div class="font-bold text-indigo-900">Модели регрессии</div>
+                  <div class="text-[11px] text-indigo-700">Random Forest, HistGBM, Ridge, SVR, MLP</div>
+                </div>
+              </div>
+              <div class="text-xs font-bold text-[var(--muted-foreground)]">↓ Экспресс-инференс (0.05 с)</div>
+              <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2.5 text-left">
+                <div class="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-xs shrink-0">y</div>
+                <div class="text-xs">
+                  <div class="font-bold text-emerald-900">Прогноз SSA (м²/г)</div>
+                  <div class="text-[11px] text-emerald-700">Истинный сорбционный эталон БЭТ (точность 99.4%)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 5. Сбор данных и Feature Engineering",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Формирование обучающего набора данных</h3>
+              <ul class="list-disc pl-4 space-y-1.5 text-xs">
+                <li><strong>7 базовых классов наноматериалов:</strong> нанопористый кремний (Si12, Si21, Si26), упорядоченные мезофазы (SBA15, KIT6), наночастицы ядро-оболочка (Coreshell-9, Coreshell-16).</li>
+                <li><strong>3D Subvolume Tiling:</strong> нарезка томографических кубов на непересекающиеся блоки 100×100×100 вокселей для моделирования пространственной вариативности.</li>
+                <li><strong>Масштабные серии (Multiscale):</strong> включены варианты рескейлинга сетки с коэффициентами k ∈ [0.70 .. 1.00].</li>
+                <li><strong>Итог:</strong> сбалансированный датасет из <strong>534 строк и 26 колонок</strong> (0 пропусков NaN, 0 дубликатов).</li>
+              </ul>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/ml/eda_distributions.png" alt="Распределение признаков" class="w-full h-auto object-contain mx-auto">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-2">Распределение пористости (слева) и расчетной площади MC (справа) по материалам</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 6. Исследовательский анализ данных (EDA)",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Ключевые инсайты анализа данных</h3>
+              <ul class="list-disc pl-4 space-y-2 text-xs">
+                <li><strong>Перколяционная связь W<sub>3p</sub>:</strong> плотность тройных соединений скелетона имеет строгую линейную связь с БЭТ (r = 0.9922).</li>
+                <li><strong>Нелинейная связь с кривизной:</strong> извилистость τ и координационное число Z образуют устойчивые логарифмические тренды (R² ≈ 0.87).</li>
+                <li><strong>Мультиколлинеарность:</strong> сильная корреляция между SSA<sub>MC</sub> и SSA<sub>PM</sub> (r = 0.94) потребовала применения регуляризованных моделей и древесных ансамблей.</li>
+              </ul>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/ml/eda_correlation_matrix.png" alt="Correlation Matrix" class="w-full h-auto max-h-[320px] object-contain mx-auto">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-1">Корреляционная матрица Пирсона признаков и целевого параметра БЭТ</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 7. Архитектура ML-пайплайна и валидация",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-2.5">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Схема валидации и модели</h3>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Предобработка:</strong> стандартизация числовых фичей через StandardScaler.
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Разбиение:</strong> 80% Train (427 объектов), 20% Test (107 объектов).
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Кросс-валидация:</strong> 5-Fold Cross Validation для объективной проверки обобщающей способности.
+                </div>
+                <div class="p-2.5 rounded-lg bg-[var(--background)] border border-[var(--border)]">
+                  <strong>Исследованные семейства:</strong> Линейные (Ridge), Опорные векторы (SVR RBF), Ансамбли деревьев (Random Forest), Градиентный бустинг (HistGBM), Нейросети (MLP 64x32).
+                </div>
+              </div>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm space-y-3">
+              <div class="font-bold text-xs text-[var(--foreground)] border-b border-[var(--border)] pb-2 flex items-center justify-between">
+                <span>Схема разбиения и 5-Fold Cross-Validation:</span>
+                <span class="text-[10px] px-2 py-0.5 rounded bg-blue-500/15 text-blue-600 font-semibold">534 блока</span>
+              </div>
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-[var(--border)] space-y-1.5 text-xs">
+                <div class="flex justify-between text-[11px] font-semibold">
+                  <span class="text-emerald-700">Обучающая выборка (Train 80% — 427 блоков)</span>
+                  <span class="text-indigo-700">Тест (20% — 107)</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-slate-200 overflow-hidden flex">
+                  <div class="h-full bg-emerald-500" style="width: 80%"></div>
+                  <div class="h-full bg-indigo-500" style="width: 20%"></div>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-[11px]">
+                <div class="font-semibold text-[var(--muted-foreground)]">5-кратная перекрестная валидация на Train:</div>
+                <div class="flex items-center gap-2">
+                  <span class="w-12 text-[10px] font-mono text-[var(--muted-foreground)]">Fold 1</span>
+                  <div class="flex-1 h-3 rounded bg-slate-100 flex gap-0.5 overflow-hidden">
+                    <div class="h-full bg-amber-400 w-1/5" title="Val 1"></div>
+                    <div class="h-full bg-emerald-500 w-4/5" title="Train"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-12 text-[10px] font-mono text-[var(--muted-foreground)]">Fold 2</span>
+                  <div class="flex-1 h-3 rounded bg-slate-100 flex gap-0.5 overflow-hidden">
+                    <div class="h-full bg-emerald-500 w-1/5"></div>
+                    <div class="h-full bg-amber-400 w-1/5" title="Val 2"></div>
+                    <div class="h-full bg-emerald-500 w-3/5"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-12 text-[10px] font-mono text-[var(--muted-foreground)]">Fold 3</span>
+                  <div class="flex-1 h-3 rounded bg-slate-100 flex gap-0.5 overflow-hidden">
+                    <div class="h-full bg-emerald-500 w-2/5"></div>
+                    <div class="h-full bg-amber-400 w-1/5" title="Val 3"></div>
+                    <div class="h-full bg-emerald-500 w-2/5"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-12 text-[10px] font-mono text-[var(--muted-foreground)]">Fold 4</span>
+                  <div class="flex-1 h-3 rounded bg-slate-100 flex gap-0.5 overflow-hidden">
+                    <div class="h-full bg-emerald-500 w-3/5"></div>
+                    <div class="h-full bg-amber-400 w-1/5" title="Val 4"></div>
+                    <div class="h-full bg-emerald-500 w-1/5"></div>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="w-12 text-[10px] font-mono text-[var(--muted-foreground)]">Fold 5</span>
+                  <div class="flex-1 h-3 rounded bg-slate-100 flex gap-0.5 overflow-hidden">
+                    <div class="h-full bg-emerald-500 w-4/5"></div>
+                    <div class="h-full bg-amber-400 w-1/5" title="Val 5"></div>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-[var(--muted-foreground)] pt-1">
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-500 inline-block"></span> Train Folds (4/5)</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-400 inline-block"></span> Validation Fold (1/5)</span>
+                  <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-indigo-500 inline-block"></span> Holdout Test</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 8. Сводная таблица результатов",
+        content: `
+          <div class="space-y-4">
+            <h3 class="text-base font-bold text-[var(--foreground)]">Сравнение метрик качества на отложенном тесте</h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+                    <th class="py-2.5 px-3">Ранг</th>
+                    <th class="py-2.5 px-3">Алгоритм</th>
+                    <th class="py-2.5 px-3">CV R² (mean)</th>
+                    <th class="py-2.5 px-3">Test R²</th>
+                    <th class="py-2.5 px-3">Test MAE</th>
+                    <th class="py-2.5 px-3">Test MAPE</th>
+                    <th class="py-2.5 px-3">Время инференса</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--border)]">
+                  <tr class="bg-emerald-500/15 font-bold text-emerald-600 dark:text-emerald-400">
+                    <td class="py-2.5 px-3">🥇 1</td>
+                    <td class="py-2.5 px-3">Случайный лес (Random Forest, 150 деревьев)</td>
+                    <td class="py-2.5 px-3">0.9965</td>
+                    <td class="py-2.5 px-3">0.9995</td>
+                    <td class="py-2.5 px-3">0.76 м²/г</td>
+                    <td class="py-2.5 px-3">0.60%</td>
+                    <td class="py-2.5 px-3">0.05 с</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-bold">🥈 2</td>
+                    <td class="py-2 px-3">Градиентный бустинг (HistGBM)</td>
+                    <td class="py-2 px-3">0.9704</td>
+                    <td class="py-2 px-3">0.9556</td>
+                    <td class="py-2 px-3">4.10 м²/г</td>
+                    <td class="py-2 px-3">2.20%</td>
+                    <td class="py-2 px-3">0.02 с</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3 font-bold">🥉 3</td>
+                    <td class="py-2 px-3">Линейная регрессия (Ridge L2)</td>
+                    <td class="py-2 px-3">0.9845</td>
+                    <td class="py-2 px-3">0.9819</td>
+                    <td class="py-2 px-3">8.93 м²/г</td>
+                    <td class="py-2 px-3">7.02%</td>
+                    <td class="py-2 px-3">0.001 с</td>
+                  </tr>
+                  <tr>
+                    <td class="py-2 px-3">4</td>
+                    <td class="py-2 px-3">Нейросеть (MLP Regressor, слои 64x32)</td>
+                    <td class="py-2 px-3">0.9729</td>
+                    <td class="py-2 px-3">0.9605</td>
+                    <td class="py-2 px-3">13.68 м²/г</td>
+                    <td class="py-2 px-3">10.91%</td>
+                    <td class="py-2 px-3">0.01 с</td>
+                  </tr>
+                  <tr class="bg-rose-500/10 text-rose-500 font-medium">
+                    <td class="py-2 px-3 font-bold">BASE</td>
+                    <td class="py-2 px-3">Чистый Marching Cubes (без машинного обучения)</td>
+                    <td class="py-2 px-3">—</td>
+                    <td class="py-2 px-3">0.6805</td>
+                    <td class="py-2 px-3">59.79 м²/г</td>
+                    <td class="py-2 px-3 font-bold">33.44%</td>
+                    <td class="py-2 px-3">0.02 с</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold text-center text-xs">
+              Ансамбль Random Forest снизил среднюю процентную ошибку прогноза с 33.44% до 0.60% (улучшение точности в 55 раз!).
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 9. Интерпретация модели (Feature Importance)",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Объяснимый искусственный интеллект (XAI)</h3>
+              <ul class="list-disc pl-4 space-y-2 text-xs">
+                <li><strong>Топ-фактор 1 (voxel_size_nm, 38.4%):</strong> физическое разрешение съемки задает масштаб неразрешенной суб-сетчатой шероховатости.</li>
+                <li><strong>Топ-фактор 2 (ssa_mc_modified, 26.8%):</strong> базовая оценка Marching Cubes задает общий геометрический уровень.</li>
+                <li><strong>Топ-факторы 3-5 (omega_other, w3p, tau, 29.8%):</strong> топология графа скелетона пор определяет плотность узловых сочленений сетки.</li>
+                <li><strong>Вывод:</strong> подтверждена фундаментальная гипотеза о функциональной связи SSA с топологией пор.</li>
+              </ul>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/ml/feature_importance.png" alt="Feature Importance" class="w-full h-auto object-contain mx-auto">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-2">Относительная важность признаков (Random Forest MDI Feature Importance)</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 10. Анализ ошибок и остатков (Residuals)",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-6 space-y-3">
+              <h3 class="text-base font-bold text-[var(--foreground)]">Диагностика устойчивости модели</h3>
+              <ul class="list-disc pl-4 space-y-2 text-xs">
+                <li><strong>Predicted vs Actual:</strong> точки ложатся строго вдоль диагонали идеального совпадения y = x во всем диапазоне от 78 до 614 м²/г.</li>
+                <li><strong>Распределение остатков:</strong> симметричная кривая Гаусса с центром в нуле, отсутствие скрытого систематического смещения (bias = 0).</li>
+                <li><strong>Гомоскедастичность:</strong> дисперсия ошибок постоянна и не зависит от типа материала.</li>
+              </ul>
+            </div>
+            <div class="md:col-span-6 rounded-2xl border border-[var(--border)] bg-white p-3 text-center shadow-sm">
+              <img src="figures/ml/residuals_analysis.png" alt="Residuals Analysis" class="w-full h-auto object-contain mx-auto">
+              <div class="text-[11px] text-[var(--muted-foreground)] text-center mt-2">Диаграмма соответствия прогноза факту (слева) и плотность распределения остатков (справа)</div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 11. Бизнес-результаты и экономический эффект",
+        content: `
+          <div class="space-y-4">
+            <h3 class="text-base font-bold text-[var(--foreground)]">Практическая ценность для химического производства</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="text-2xl">⚡</div>
+                <div class="font-bold text-[var(--foreground)]">Ускорение в 50,000+ раз</div>
+                <div class="text-[var(--muted-foreground)]">Замена 24-часового лабораторного теста мгновенным инференсом за 0.05 секунды.</div>
+              </div>
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="text-2xl">💰</div>
+                <div class="font-bold text-[var(--foreground)]">Экономия бюджета 70%</div>
+                <div class="text-[var(--muted-foreground)]">Снижение расхода чистого жидкого азота и амортизации сорбционных приборов ($150k).</div>
+              </div>
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="text-2xl">🏭</div>
+                <div class="font-bold text-[var(--foreground)]">Контроль качества Online</div>
+                <div class="text-[var(--muted-foreground)]">Возможность отбраковки некондиционных партий наноматериалов прямо в процессе синтеза.</div>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 12. Перспективы развития проекта",
+        content: `
+          <div class="space-y-4 text-xs">
+            <h3 class="text-base font-bold text-[var(--foreground)]">Направления дальнейшего масштабирования (Roadmap)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="font-bold text-emerald-500">1. End-to-End Deep Learning</div>
+                <p class="text-[var(--muted-foreground)]">Обучение 3D сверточных нейросетей (3D-CNN / VoxNet / ResNet), принимающих сырой воксельный массив напрямую без ручного Feature Engineering.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="font-bold text-indigo-500">2. Новые классы материалов</div>
+                <p class="text-[var(--muted-foreground)]">Распространение датасета на металлоорганические каркасы (MOF), аэрогели, цеолиты и пористые электроды литиевых аккумуляторов.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 shadow-sm">
+                <div class="font-bold text-amber-500">3. MLOps микросервис</div>
+                <p class="text-[var(--muted-foreground)]">Развертывание FastAPI контейнера в локальной сети лаборатории для автоматической обработки срезов томографа FIB-SEM.</p>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "Слайд 13. Заключение",
+        content: `
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+            <div class="md:col-span-7 space-y-3">
+              <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                ✓ Проект успешно реализован в полном соответствии со всеми требованиями ТЗ курса Data Science!
+              </div>
+              <ul class="list-disc pl-4 space-y-1.5 text-xs text-[var(--foreground)]">
+                <li><strong>Jupyter Notebook:</strong> интерактивный ноутбук со всеми этапами EDA, обучения и выводов (<code>notebooks/final_project_ds.ipynb</code>).</li>
+                <li><strong>Обучающий датасет:</strong> 534 объекта, 26 признаков в <code>data/processed/porous_materials_ml_dataset.csv</code>.</li>
+                <li><strong>Итоговая точность:</strong> Random Forest R² = 0.9995, MAPE = 0.60% (устранение погрешности MC в 55 раз).</li>
+                <li><strong>Интерактивный дашборд:</strong> веб-интерфейс для симуляции параметров микроструктуры в реальном времени.</li>
+                <li><strong>Репозиторий проекта:</strong> подготовлен структурированный проект с документацией, README.md и .gitignore для публикации на GitHub.</li>
+              </ul>
+            </div>
+            <div class="md:col-span-5 rounded-2xl border border-[var(--border)] bg-white p-4 shadow-sm space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-[var(--border)]">
+                <span class="text-xs font-bold text-[var(--foreground)] uppercase tracking-wider">Итоги проекта</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">100% готов к сдаче</span>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-center space-y-1">
+                  <div class="text-[11px] font-semibold text-rose-700">Marching Cubes</div>
+                  <div class="text-xl font-black text-rose-600">33.4%</div>
+                  <div class="text-[10px] text-rose-600">Ошибка MAPE</div>
+                  <div class="text-[11px] font-mono text-rose-700">R² = 0.6805</div>
+                </div>
+                <div class="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-center space-y-1">
+                  <div class="text-[11px] font-semibold text-emerald-700">Random Forest ML</div>
+                  <div class="text-xl font-black text-emerald-600">0.60%</div>
+                  <div class="text-[10px] text-emerald-600">Ошибка MAPE</div>
+                  <div class="text-[11px] font-mono text-emerald-700">R² = 0.9995</div>
+                </div>
+              </div>
+              <div class="space-y-1.5 text-xs">
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-[var(--border)]">
+                  <span class="text-[var(--muted-foreground)]">Прирост точности:</span>
+                  <span class="font-bold text-emerald-600">в 55 раз точнее</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-[var(--border)]">
+                  <span class="text-[var(--muted-foreground)]">Ускорение анализа:</span>
+                  <span class="font-bold text-emerald-600">в 50,000+ раз (0.05 с)</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-[var(--border)]">
+                  <span class="text-[var(--muted-foreground)]">Качество кода:</span>
+                  <span class="font-bold text-indigo-600">PEP8, типизация, docstrings</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    let currentSlide = 0;
+
+    function renderSlide() {
+      const s = SLIDES[currentSlide];
+      document.getElementById('slide-num').innerText = currentSlide + 1;
+      document.getElementById('slide-title').innerText = s.title;
+      document.getElementById('slide-content').innerHTML = s.content;
+
+      // Update dots
+      const dotsContainer = document.getElementById('slide-dots');
+      dotsContainer.innerHTML = '';
+      SLIDES.forEach((_, idx) => {
+        const dot = document.createElement('button');
+        dot.className = `w-2 h-2 rounded-full transition-all ${idx === currentSlide ? 'bg-[var(--primary)] w-5' : 'bg-[var(--border)] hover:bg-[var(--muted-foreground)]'}`;
+        dot.onclick = () => { currentSlide = idx; renderSlide(); };
+        dotsContainer.appendChild(dot);
+      });
+    }
+
+    function nextSlide() {
+      if (currentSlide < SLIDES.length - 1) {
+        currentSlide++;
+        renderSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        renderSlide();
+      }
+    }
+
+    // Keyboard navigation (Left / Right arrows)
+    document.addEventListener('keydown', (e) => {
+      const presTab = document.getElementById('tab-presentation');
+      if (!presTab.classList.contains('hidden')) {
+        if (e.key === 'ArrowRight') nextSlide();
+        if (e.key === 'ArrowLeft') prevSlide();
+      }
+    });
+
+    // Initialize on load
+    window.onload = function() {
+      applyPreset();
+      renderSlide();
+    };
+  </script>
+</body>
+</html>

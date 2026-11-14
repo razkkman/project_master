@@ -1,0 +1,7 @@
+'Coreshell16':78 - Structure_1.1
+'Coreshell9':111 - Structure_1.2
+'Si26':129 - Structure_2.1
+'Si21':173 - Structure_2.2
+'Si12':315 - Structure_2.3
+'SBA15':554 - Structure_3.1
+'KIT6':614 - Structure_3.2

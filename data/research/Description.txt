@@ -1,0 +1,8 @@
+Structure_name	SSA, m2/g	voxel_size, nm
+Si12	315	0.35
+Si21	173	0.5
+Si26	129	0.5
+KIT-6	614	0.46
+SBA-15	554	0.46
+CoreShell9	111	0.46
+CoreShell16	78	0.46
