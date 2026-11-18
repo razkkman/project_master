@@ -331,7 +331,7 @@
           </div>
           <div class="flex gap-2 text-xs">
             <a href="https://github.com/razkkman/project_master/blob/main/docs/методы/Комплексное_обоснование_модификаций_MC_для_диссертации.md" target="_blank" class="px-3 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition flex items-center gap-1.5 shadow-sm">
-              <span>📄 Полный отчет для диссертации</span>
+              <span>📄 Полный отчет</span>
               <span>↗</span>
             </a>
           </div>
@@ -384,7 +384,7 @@
                 <th class="py-2.5 px-3 text-teal-600 dark:text-teal-400 font-bold">Enhanced MC v4 (WB)</th>
                 <th class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-bold">Dual Contouring</th>
                 <th class="py-2.5 px-3">Random Forest ML</th>
-                <th class="py-2.5 px-3 font-bold text-emerald-600">Выигрыш к Автору</th>
+                <th class="py-2.5 px-3 font-bold text-emerald-600">Выигрыш</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[var(--border)] font-mono">
@@ -677,6 +677,30 @@
                 <td class="py-3 px-3">23.65</td>
                 <td class="py-3 px-3">18.87%</td>
                 <td class="py-3 px-3 font-mono">0.03 с</td>
+              </tr>
+              <tr class="bg-indigo-500/10 font-medium">
+                <td class="py-3 px-3 text-indigo-600 dark:text-indigo-400 font-bold">⚡ ТОП</td>
+                <td class="py-3 px-3 font-semibold text-[var(--foreground)]">
+                  Dual Contouring (Hermite QEF, конечная топ-версия)
+                  <span class="block text-[10px] text-[var(--muted-foreground)] font-normal">Детерминированная сеточная 3D реконструкция без ML</span>
+                </td>
+                <td class="py-3 px-3">—</td>
+                <td class="py-3 px-3 text-indigo-600 dark:text-indigo-400 font-bold">0.9912</td>
+                <td class="py-3 px-3 font-bold">4.82</td>
+                <td class="py-3 px-3 font-bold text-indigo-600 dark:text-indigo-400">3.12%</td>
+                <td class="py-3 px-3 font-mono">0.85 с</td>
+              </tr>
+              <tr class="bg-teal-500/10 font-medium">
+                <td class="py-3 px-3 text-teal-600 dark:text-teal-400 font-bold">🔬 WB</td>
+                <td class="py-3 px-3 font-semibold text-[var(--foreground)]">
+                  Enhanced MC v4 (White Box: Фракталы + P123)
+                  <span class="block text-[10px] text-[var(--muted-foreground)] font-normal">Аналитическая физическая модель шероховатости</span>
+                </td>
+                <td class="py-3 px-3">—</td>
+                <td class="py-3 px-3 text-teal-600 dark:text-teal-400 font-bold">0.9885</td>
+                <td class="py-3 px-3 font-bold">5.64</td>
+                <td class="py-3 px-3 font-bold text-teal-600 dark:text-teal-400">3.88%</td>
+                <td class="py-3 px-3 font-mono">0.28 с</td>
               </tr>
               <tr class="bg-rose-500/10 text-rose-500 font-medium">
                 <td class="py-3 px-3 font-bold">BASELINE</td>
@@ -1216,6 +1240,24 @@
                     <td class="py-2 px-3">10.91%</td>
                     <td class="py-2 px-3">0.01 с</td>
                   </tr>
+                  <tr class="bg-indigo-500/15 font-semibold text-indigo-600 dark:text-indigo-400">
+                    <td class="py-2 px-3">⚡ ТОП</td>
+                    <td class="py-2 px-3">Dual Contouring (Hermite QEF, конечная версия)</td>
+                    <td class="py-2 px-3">—</td>
+                    <td class="py-2 px-3">0.9912</td>
+                    <td class="py-2 px-3">4.82 м²/г</td>
+                    <td class="py-2 px-3 font-bold">3.12%</td>
+                    <td class="py-2 px-3">0.85 с</td>
+                  </tr>
+                  <tr class="bg-teal-500/15 font-semibold text-teal-600 dark:text-teal-400">
+                    <td class="py-2 px-3">🔬 WB</td>
+                    <td class="py-2 px-3">Enhanced MC v4 (White Box: Фракталы + P123)</td>
+                    <td class="py-2 px-3">—</td>
+                    <td class="py-2 px-3">0.9885</td>
+                    <td class="py-2 px-3">5.64 м²/г</td>
+                    <td class="py-2 px-3 font-bold">3.88%</td>
+                    <td class="py-2 px-3">0.28 с</td>
+                  </tr>
                   <tr class="bg-rose-500/10 text-rose-500 font-medium">
                     <td class="py-2 px-3 font-bold">BASE</td>
                     <td class="py-2 px-3">Чистый Marching Cubes (без машинного обучения)</td>
@@ -1229,7 +1271,7 @@
               </table>
             </div>
             <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-semibold text-center text-xs">
-              Ансамбль Random Forest снизил среднюю процентную ошибку прогноза с 33.44% до 0.60% (улучшение точности в 55 раз!).
+              Ансамбль Random Forest снизил среднюю процентную ошибку прогноза с 33.44% до 0.60% (улучшение точности в 55 раз!). Конечная физическая модификация Dual Contouring обеспечивает рекордную точность 3.12% в рамках детерминированного численного моделирования.
             </div>
           </div>
         `
@@ -1332,7 +1374,8 @@
                 <li><strong>Jupyter Notebook:</strong> интерактивный ноутбук со всеми этапами EDA, обучения и выводов (<code>notebooks/final_project_ds.ipynb</code>).</li>
                 <li><strong>Обучающий датасет:</strong> 534 объекта, 26 признаков в <code>data/processed/porous_materials_ml_dataset.csv</code>.</li>
                 <li><strong>Итоговая точность:</strong> Random Forest R² = 0.9995, MAPE = 0.60% (устранение погрешности MC в 55 раз).</li>
-                <li><strong>Интерактивный дашборд:</strong> веб-интерфейс для симуляции параметров микроструктуры в реальном времени.</li>
+                <li><strong>Интерактивный дашборд:</strong> веб-интерфейс для симуляции параметров микроструктуры и сопоставления с эталоном БЭТ.</li>
+                <li><strong>Конечная модификация MC / Dual Contouring:</strong> разработана детерминированная модификация Dual Contouring (Hermite QEF, погрешность 3.12%) и фрактальная White Box модель (погрешность 3.88%), верифицированные на 7 наноматериалах.</li>
                 <li><strong>Репозиторий проекта:</strong> подготовлен структурированный проект с документацией, README.md и .gitignore для публикации на GitHub.</li>
               </ul>
             </div>
